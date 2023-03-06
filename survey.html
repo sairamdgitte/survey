@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Survey Form</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <form method="POST" id="survey-form">
+            <div class="question">Question 1: What is your favorite color?</div>
+            <div class="answer"><input type="radio" name="color" value="red"> <span>Red</span></div>
+            <div class="answer"><input type="radio" name="color" value="blue"> <span>Blue</span></div>
+            <div class="answer"><input type="radio" name="color" value="green"> <span>Green</span></div>
+            <br>
+            <div class="question">Question 2: How often do you exercise?</div>
+            <div class="answer"><input type="radio" name="exercise" value="daily"> <span>Daily</span></div>
+            <div class="answer"><input type="radio" name="exercise" value="weekly"> <span>Weekly</span></div>
+            <div class="answer"><input type="radio" name="exercise" value="monthly"> <span>Monthly</span></div>
+            <br>
+            <div class="question">Question 3: Which of the following devices do you use to access the internet?</div>
+            <div class="answer">
+                <input type="checkbox" name="device[]" value="desktop">
+                <span>Desktop computer</span>
+            </div>
+            <div class="answer">
+                <input type="checkbox" name="device[]" value="laptop">
+                <span>Laptop computer</span>
+            </div>
+            <div class="answer">
+                <input type="checkbox" name="device[]" value="tablet">
+                <span>Tablet</span>
+            </div>
+            <div class="answer">
+                <input type="checkbox" name="device[]" value="smartphone">
+                <span>Smartphone</span>
+            </div>
+            <br>
+
+            <div class="question">Question 4: What is your favorite type of food?</div>
+            <div class="answer"><input type="radio" name="food" value="Italian"> <span>Italian</span></div>
+            <div class="answer"><input type="radio" name="food" value="Mexican"> <span>Mexican</span></div>
+            <div class="answer"><input type="radio" name="food" value="Indian"> <span>Indian</span></div>
+            <div class="answer"><input type="radio" name="food" value="Chinese"> <span>Chinese</span></div>
+            <div class="answer"><input type="radio" name="food" value="American"> <span>American</span></div>
+            <div class="answer"><input type="radio" name="food" value="Others"> <span>Others</span></div>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="results"></div>
+
+        <script>
+            // Define existing data of questions and answers
+            const existingData = [
+                { question: 'What is your favorite color?', options: ['red', 'blue', 'green'], answers: [12, 25, 30] },
+                { question: 'How often do you exercise?', options: ['daily', 'weekly', 'monthly'], answers: [35, 27, 18] },
+                // { question: 'Which of the following devices do you use to access the internet?', options: ['Pizza', 'Pasta', 'Burger', 'Sushi', 'Other'], answers: [18, 22, 30, 10, 20] },
+                // { question: 'Which of the following programming languages have you used?', options: ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'Other'], answers: [[true, false, true, false, false, false], [false, true, false, true, false, false], [true, false, true, true, false, false], [false, false, true, false, true, false], [false, false, false, false, true, false], [false, true, false, false, false, true], [true, true, false, false, false, false]] },
+                { question: 'Which of the following devices do you use to access the internet?', options: ['desktop', 'laptop', 'tablet', 'smartphone'], answers: [['desktop', 'laptop'], ['laptop', 'tablet'], ['desktop', 'laptop', 'tablet', 'smartphone'], ['tablet', 'smartphone'], ['smartphone']] },
+                { question: 'What is your favorite type of food?', options: ['Italian', 'Mexican', 'Indian', 'Chinese', 'American', 'Other'], answers: [35, 27, 18, 25, 50, 10] },
+            ];
+
+            // Define a function to calculate the percentile of a new response
+            function calculatePercentile(newResponse) {
+                const questionIndex = existingData.findIndex(q => q.question === newResponse.question);
+                let optionIndex;
+                if (Array.isArray(newResponse.options)) {
+                    // console.log(newResponse.options)
+                    // handle multiple-answer question
+                    // const answerOptions = existingData[questionIndex].options;
+
+                    // optionIndex = newResponse.options.map(opt => answerOptions.indexOf(opt));
+                    // console.log(optionIndex)
+                    const words = newResponse.options;
+                    // console.log(newResponse.options)
+                    optionIndex = existingData[questionIndex].answers.reduce((acc, curr, idx) => words.some(word => curr.includes(word)) ? [...acc, idx] : acc, []);
+
+                    // console.log(existingData[questionIndex].answers.length)
+
+                    // console.log(optionIndex.constructor)
+                } else {
+                    // handle single-answer question
+                    optionIndex = existingData[questionIndex].options.indexOf(newResponse.options);
+                }
+                const answerCounts = existingData[questionIndex].answers;
+
+                // console.log(answerCounts)
+                let optionCount = 0;
+                let totalResponses;
+
+                if (Array.isArray(optionIndex)) {
+                    // handle multiple-answer question
+                    // optionIndex.forEach(idx => optionCount += answerCounts.reduce((acc, curr) => acc + (curr[idx] ? 1 : 0), 0));
+                    optionCount = optionIndex.length
+                    totalResponses = existingData[questionIndex].answers.length
+
+                    // console.log(optionIndex)
+                } else {
+                    // console.log(optionIndex)
+                    // handle single-answer question
+                    optionCount = answerCounts[optionIndex];
+                    totalResponses = answerCounts.reduce((acc, curr) => acc + (Array.isArray(curr) ? curr.length : curr), 0);
+
+                }
+                // const totalResponses = answerCounts.reduce((acc, curr) => acc + (Array.isArray(curr) ? curr.length : curr), 0);
+                console.log(totalResponses)
+                const percentile = (optionCount / totalResponses) * 100;
+                return percentile.toFixed(2); // round to 2 decimal places
+            }
+
+            const form = document.getElementById("survey-form");
+            const redirectUrl = 'viz.html'
+            // // Load data
+            // const url = './responses.json';
+            //     let responses;
+
+            //     fetch(url)
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             responses = data
+            //             // console.log(data);
+            //             // Do something with the data here
+            //         })
+            //         .catch(error => console.error(error));
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+
+                // Get the user's answers to the questions
+                const color = form.elements.color.value;
+                const exercise = form.elements.exercise.value;
+                const devices = form.elements["device[]"];
+                const food = form.elements.food.value;
+                const selectedDevicesArray = Array.from(devices).filter(device => device.checked).map(device => device.value);
+                // console.log(devices)
+                //   // Get an array of the selected devices
+                //   const selectedDevices = [];
+                //   for (let i = 0; i < devices.length; i++) {
+                //     if (devices[i].checked) {
+                //       selectedDevices.push(devices[i].value);
+                //     }
+                //   }
+                // console.log(selectedDevicesArray)
+                // Calculate the percentiles for each answer
+                const colorQuestion = { question: 'What is your favorite color?', options: color }
+                const colorPercentile = calculatePercentile(colorQuestion);
+                console.log(`Percentile for "${colorQuestion.options}" in "${colorQuestion.question}": ${colorPercentile}%`);
+
+                const exerciseQuestion = { question: 'How often do you exercise?', options: exercise }
+                const exercisePercentile = calculatePercentile(exerciseQuestion);
+                console.log(`Percentile for "${exerciseQuestion.options}" in "${exerciseQuestion.question}": ${exercisePercentile}%`);
+
+                const devicesQuestion = { question: 'Which of the following devices do you use to access the internet?', options: selectedDevicesArray }
+                const devicesPercentile = calculatePercentile(devicesQuestion);
+                console.log(`Percentile for "${devicesQuestion.options}" in "${devicesQuestion.question}": ${devicesPercentile}%`);
+
+                const foodQuestion = { question: 'What is your favorite type of food?', options: food }
+                const foodPercentile = calculatePercentile(foodQuestion);
+                console.log(`Percentile for "${foodQuestion.options}" in "${foodQuestion.question}": ${foodPercentile}%`);
+
+                // console.log(Object.values(responses.color))
+                // Display the results to the user
+                // alert("Color percentile: " + colorPercentile + "%" +
+                //     "\nExercise percentile: " + exercisePercentile + "%" +
+                //     "\nDevices percentile: " + devicesPercentile + "%" +
+                //     "\nFood percentile: " + foodPercentile + "%");
+                localStorage.setItem('colorPercentile', colorPercentile);
+                localStorage.setItem('exercisePercentile', exercisePercentile);
+                localStorage.setItem('devicesPercentile', devicesPercentile);
+                localStorage.setItem('foodPercentile', foodPercentile);
+
+                window.location.replace(redirectUrl);
+
+            });
+
+            // Example usage: calculate percentile for a new response
+            // const newResponse = { question: 'What is your favorite color?', options: 'Red' };
+            // const percentile = calculatePercentile(newResponse);
+            // console.log(`Percentile for "${newResponse.options}" in "${newResponse.question}": ${percentile}%`);
+
+
+
+
+
+
+
+
+        </script>
+    </div>
+</body>
+
+</html>

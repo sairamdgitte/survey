@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bar Chart Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <p><a href="javascript:history.back()">Go back to the previous page</a></p>
+  <canvas id="myChart"></canvas>
+  <script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const colorPercentile = localStorage.getItem('colorPercentile');
+    const exercisePercentile = localStorage.getItem('exercisePercentile');
+    const devicesPercentile = localStorage.getItem('devicesPercentile');
+    const foodPercentile = localStorage.getItem('foodPercentile');
+
+    const data = {
+      labels: ['Question 1', 'Question 2', 'Question 3', 'Question 4'],
+      
+      datasets: [{
+        label: 'Response Percentiles',
+        data: [colorPercentile, exercisePercentile, devicesPercentile, devicesPercentile],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+    const options = {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    };
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: options
+    });
+  </script>
+</body>
+</html>
